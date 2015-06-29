@@ -1,10 +1,10 @@
 #
-# Car-Routing is experimantal !!!
+# Car-Routing is experimental !!!
 #
 # DO NOT USE FOR ACTUAL NAVIGATION
 #
 # Turn restrictions are missing, leading to wrong routes
-#
+# Based on Car-test.brf
 
 ---context:global
 
@@ -62,9 +62,21 @@ assign onewaypenalty
 
 assign ispaved or surface=paved or surface=asphalt or surface=concrete surface=paving_stones
 
+assign smoothnesspenalty if not consider_smoothness then 0.0 else
+# 
+if smoothness= then 0.0 else # most of roads do not have smoothness value present
+if smoothness=excellent|very_good|good then 0.0 else
+if smoothness=intermediate then 0.1 else
+if smoothness=bad|robust_wheels then 0.5 else
+if smoothness=very_bad|high_clearance then 4.0 else
+if smoothness=horrible|off_road_wheels then 10000 else
+if smoothness=very_horrible then 10000 else
+if smoothness=impassable then 10000 else
+0.0
+
 assign costfactor
 
- add max onewaypenalty accesspenalty
+ add max max onewaypenalty accesspenalty smoothnesspenalty
 
  switch and highway= not route=ferry  100000
 
