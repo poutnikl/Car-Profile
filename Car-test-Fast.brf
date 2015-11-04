@@ -22,7 +22,7 @@ assign eco 		0
 assign ecofast 	0
 assign fast 	1
 
-assign avoid_motorways 1
+assign avoid_motorways 0
 
 ---context:way   # following code refers to way-tags
 
