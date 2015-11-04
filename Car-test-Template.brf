@@ -26,8 +26,8 @@ assign eco 		equal drivestyle 1
 assign ecofast equal drivestyle 2
 assign fast    equal drivestyle 3
 
-assign avoid_motorways	0 ( either toll either free ones)
-assign avoid_toll		0 ( avoid paid ways )
+assign avoid_motorways	0 # either toll either free ones
+assign avoid_toll		0 # avoid paid ways 
 
 ---context:way   # following code refers to way-tags
 
