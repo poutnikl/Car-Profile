@@ -8,7 +8,7 @@
 
 assign downhillcost 0
 assign downhillcutoff 0
-assign uphillcost 0
+assign uphillcost 7 # ( 1500 kg, 50 kW engine climbs about 14 km/h )
 assign uphillcutoff 0
 
 assign validForCars 1
