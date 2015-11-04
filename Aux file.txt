@@ -16,18 +16,25 @@ else (
 	if maxspeed=110		then ( if drivestyle = 1 then 1.17 else if drivestyle = 2 then 1.02 else 1.18 ) else
 	if maxspeed=120		then ( if drivestyle = 1 then 1.29 else if drivestyle = 2 then 1.05 else 1.08 ) else
 	if maxspeed=130		then ( if drivestyle = 1 then 1.40 else if drivestyle = 2 then 1.08 else 1.00 ) else
-	if highway=trunk	then ( if drivestyle = 1 then 1.17 else if drivestyle = 2 then 1.02 else 1.18 ) else # 110
+	
 	if highway=motorway	then ( if drivestyle = 1 then 1.40 else if drivestyle = 2 then 1.08 else 1.00 ) else # 130
+	if highway=trunk		then ( if drivestyle = 1 then 1.17 else if drivestyle = 2 then 1.02 else 1.18 ) else # 110
 	if highway=primary	then ( if drivestyle = 1 then 1.01 else if drivestyle = 2 then 1.02 else 1.44 ) else # 90
 	if highway=secondary	then ( if drivestyle = 1 then 1.00 else if drivestyle = 2 then 1.08 else 1.63 ) else # 80
 	if highway=terciary	then ( if drivestyle = 1 then 1.00 else if drivestyle = 2 then 1.16 else 1.86 ) else # 70
+	
+	if highway=motorway_link	then ( if drivestyle = 1 then 1.00 else if drivestyle = 2 then 1.08 else 1.63 ) else # 80
+	if highway=trunk_link		then ( if drivestyle = 1 then 1.00 else if drivestyle = 2 then 1.16 else 1.86 ) else # 70
+	if highway=primary_link		then ( if drivestyle = 1 then 1.02 else if drivestyle = 2 then 1.28 else 2.17 ) else # 60
+	if highway=secondary_link	then ( if drivestyle = 1 then 1.03 else if drivestyle = 2 then 1.44 else 2.60 ) else # 50
+	if highway=terciary_link	then ( if drivestyle = 1 then 1.07 else if drivestyle = 2 then 1.69 else 3.25 ) else # 40
+	
 	if highway=residental	then ( if drivestyle = 1 then 1.03 else if drivestyle = 2 then 1.44 else 2.60 ) else # 50
-	if ispaved		then ( if drivestyle = 1 then 1.18 else if drivestyle = 2 then 2.12 else 4.33 )	     # 30
-				else ( if drivestyle = 1 then 1.57 else if drivestyle = 2 then 3.07 else 6.5  )      # 20
+	if ispaved			then ( if drivestyle = 1 then 1.18 else if drivestyle = 2 then 2.12 else 4.33 )	 # 30
+					else ( if drivestyle = 1 then 1.57 else if drivestyle = 2 then 3.07 else 6.5  )      # 20
 	
 )
 	
-
 
 
 # 	Short	Fast	Eco	FastEco
