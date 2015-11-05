@@ -132,28 +132,36 @@ add switch 	highway=motorway_link|trunk_link|primary_link|secondary_link|tertiar
 if short then 1.0 # if someone insists on shortest route, what does not make much sense for cars
 
 else (  
-	if maxspeed=10											then ( if eco then 2.49 else if ecofast then 5.81 else 13.0 ) else
-	if maxspeed=20											then ( if eco then 1.57 else if ecofast then 3.07 else 6.50 ) else
-	if maxspeed=30											then ( if eco then 1.18 else if ecofast then 2.12 else 4.33 ) else
-	if maxspeed=40											then ( if eco then 1.07 else if ecofast then 1.69 else 3.25 ) else
-	if or maxspeed=50|urban	highway=unclassified			then ( if eco then 1.03 else if ecofast then 1.44 else 2.60 ) else
-	if or maxspeed=60	highway=tertiary|tertiary_link		then ( if eco then 1.02 else if ecofast then 1.28 else 2.17 ) else
-	if or maxspeed=70 highway=secondary|secondary_link		then ( if eco then 1.00 else if ecofast then 1.16 else 1.86 ) else
-	if maxspeed=80											then ( if eco then 1.00 else if ecofast then 1.08 else 1.63 ) else
-	if or maxspeed=90|rural	highway=primary|primary_link	then ( if eco then 1.01 else if ecofast then 1.02 else 1.44 ) else
-	if maxspeed=100											then ( if eco then 1.05 else if ecofast then 1.00 else 1.30 ) else
-	if or maxspeed=110 highway=trunk|trunk_link				then ( if eco then 1.17 else if ecofast then 1.02 else 1.18 ) else
-	if maxspeed=120											then ( if eco then 1.29 else if ecofast then 1.05 else 1.08 ) else
-	if or maxspeed=130 highway=motorway|motorway_link		then ( if eco then 1.40 else if ecofast then 1.08 else 1.00 ) else
+	if maxspeed=10					then ( if eco then 2.49 else if ecofast then 5.81 else 13.0 ) else
+	if maxspeed=20					then ( if eco then 1.57 else if ecofast then 3.07 else 6.50 ) else
+	if maxspeed=30					then ( if eco then 1.18 else if ecofast then 2.12 else 4.33 ) else
+	if maxspeed=40					then ( if eco then 1.07 else if ecofast then 1.69 else 3.25 ) else
+	if maxspeed=50					then ( if eco then 1.03 else if ecofast then 1.44 else 2.60 ) else
+	if maxspeed=urban					then ( if eco then 1.03 else if ecofast then 1.44 else 2.60 ) else
+	if highway=unclassified				then ( if eco then 1.03 else if ecofast then 1.44 else 2.60 ) else
+	if maxspeed=60					then ( if eco then 1.02 else if ecofast then 1.28 else 2.17 ) else
+	if highway=tertiary|tertiary_link		then ( if eco then 1.02 else if ecofast then 1.28 else 2.17 ) else
+	if maxspeed=70					then ( if eco then 1.00 else if ecofast then 1.16 else 1.86 ) else
+	if highway=secondary|secondary_link		then ( if eco then 1.00 else if ecofast then 1.16 else 1.86 ) else
+	if maxspeed=80					then ( if eco then 1.00 else if ecofast then 1.08 else 1.63 ) else
+	if maxspeed=90					then ( if eco then 1.01 else if ecofast then 1.02 else 1.44 ) else
+	if maxspeed=rural					then ( if eco then 1.01 else if ecofast then 1.02 else 1.44 ) else
+	if highway=primary|primary_link		then ( if eco then 1.01 else if ecofast then 1.02 else 1.44 ) else
+	if maxspeed=100					then ( if eco then 1.05 else if ecofast then 1.00 else 1.30 ) else
+	if maxspeed=110					then ( if eco then 1.17 else if ecofast then 1.02 else 1.18 ) else
+	if highway=trunk|trunk_link			then ( if eco then 1.17 else if ecofast then 1.02 else 1.18 ) else
+	if maxspeed=120					then ( if eco then 1.29 else if ecofast then 1.05 else 1.08 ) else
+	if maxspeed=130					then ( if eco then 1.40 else if ecofast then 1.08 else 1.00 ) else
+	if highway=motorway|motorway_link		then ( if eco then 1.40 else if ecofast then 1.08 else 1.00 ) else
 	
 	if route=ferry             		then 5.67 else 
 
-	if highway=bridleway 									then ( if eco then 1.57 else if ecofast then 3.07 else 6.50 ) else # 20
-	if highway=residential|service 							then ( if eco then 1.03 else if ecofast then 1.44 else 2.60 ) else # 50
-	if highway=living_street 								then ( if eco then 1.18 else if ecofast then 2.12 else 4.33 ) else # 30
-	if highway=track|road|path          					then 
-	   if or tracktype=grade1 ispaved   					then ( if eco then 1.57 else if ecofast then 3.07 else 6.50 )  # 20
-															else  30
+	if highway=bridleway 				then ( if eco then 1.57 else if ecofast then 3.07 else 6.50 ) else # 20
+	if highway=residential|service		then ( if eco then 1.03 else if ecofast then 1.44 else 2.60 ) else # 50
+	if highway=living_street 			then ( if eco then 1.18 else if ecofast then 2.12 else 4.33 ) else # 30
+	if highway=track|road|path    		then 
+	   if or tracktype=grade1 ispaved   	then ( if eco then 1.57 else if ecofast then 3.07 else 6.50 )  # 20
+								else  30
       else 10000
 )
 	
