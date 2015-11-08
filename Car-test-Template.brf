@@ -28,12 +28,46 @@ assign fast    equal drivestyle 3
 
 assign avoid_motorways	0 # either toll either free ones
 assign avoid_toll		0 # avoid paid ways 
+assign avoid_unpaved    1
 
 ---context:way   # following code refers to way-tags
 
 assign turncost if junction=roundabout then 0 else 200
 assign initialcost switch route=ferry 20000 0
+assign ispaved or surface=paved or surface=asphalt or surface=concrete surface=paving_stones
 
+assign	thirdc		highway=tertiary|tertiary_link
+assign	secondc		highway=secondary|secondary_link
+assign	firstc		highway=primary|primary_link	
+assign  trunkc		highway=trunk|trunk_link  
+assign	motorwayc	highway=motorway|motorway_link
+assign	urbanc		highway=unclassified|residential|service
+assign  goodtrack	and highway=track|road|path or tracktype=grade1 ispaved
+assign  badtrack	and highway=track|road|path not goodtrack
+		
+assign initialclassifier
+if route=ferry then 1
+else if ( highway=motorway|motorway_link )		then 2
+else if ( highway=trunk|trunk_link )			then 3
+else if ( highway=primary|primary_link )		then 4
+else if ( highway=secondary|secondary_link )	then 5
+else if ( highway=tertiary|tertiary_link )		then 6
+else if ( highway=unclassified ) 				then 7
+else if ( highway=residential   )				then 8
+else if ( highway=living_street  )				then 9
+else if ( highway=service   )     				then 10
+												else 11
+
+assign initialcost
+if route=ferry then 10000
+else if ( highway=motorway|motorway_link|trunk|trunk_link ) then 200 # usually easy joining
+else if ( highway=primary|primary_link )                    then 400
+else if ( highway=secondary|secondary_link )                then 200
+else if ( highway=tertiary|tertiary_link|unclassified )     then 120
+else if ( highway=residential|living_street|service   )     then 80
+else 50
+
+		
 
 #
 # calculate logical car access
@@ -52,6 +86,7 @@ assign caraccess
                                    switch    highway=unclassified                      1
                                    switch    route=ferry                               1
                                    switch or highway=residential highway=living_street 1
+								   switch and badtrack avoid_unpaved                   0 
                                    switch    highway=service                           1
                                    0
                                    or access=yes or access=permissive or access=designated access=destination
@@ -75,7 +110,7 @@ assign onewaypenalty
 
 
 
-assign ispaved or surface=paved or surface=asphalt or surface=concrete surface=paving_stones
+
 
 assign costfactor
 
@@ -128,113 +163,31 @@ assign costfactor
 #related to implict/explicit speed limits, so links may appear faster.
 
 add switch 	highway=motorway_link|trunk_link|primary_link|secondary_link|tertiary_link 0.8 0	
+
+if route=ferry	then 5.67 else 
 	        	
 if short then 1.0 # if someone insists on shortest route, what does not make much sense for cars
 
-else if eco then 
-(  
-	if maxspeed=10					then ( if eco then 2.49 else if ecofast then 5.81 else 13.0 ) else
-	if maxspeed=20					then ( if eco then 1.57 else if ecofast then 3.07 else 6.50 ) else
-	if maxspeed=30					then ( if eco then 1.18 else if ecofast then 2.12 else 4.33 ) else
-	if maxspeed=40					then ( if eco then 1.07 else if ecofast then 1.69 else 3.25 ) else
-	if maxspeed=50					then ( if eco then 1.03 else if ecofast then 1.44 else 2.60 ) else
-	if maxspeed=urban					then ( if eco then 1.03 else if ecofast then 1.44 else 2.60 ) else
-	if highway=unclassified				then ( if eco then 1.03 else if ecofast then 1.44 else 2.60 ) else
-	if maxspeed=60					then ( if eco then 1.02 else if ecofast then 1.28 else 2.17 ) else
-	if highway=tertiary|tertiary_link		then ( if eco then 1.02 else if ecofast then 1.28 else 2.17 ) else
-	if maxspeed=70					then ( if eco then 1.00 else if ecofast then 1.16 else 1.86 ) else
-	if highway=secondary|secondary_link		then ( if eco then 1.00 else if ecofast then 1.16 else 1.86 ) else
-	if maxspeed=80					then ( if eco then 1.00 else if ecofast then 1.08 else 1.63 ) else
-	if maxspeed=90					then ( if eco then 1.01 else if ecofast then 1.02 else 1.44 ) else
-	if maxspeed=rural					then ( if eco then 1.01 else if ecofast then 1.02 else 1.44 ) else
-	if highway=primary|primary_link		then ( if eco then 1.01 else if ecofast then 1.02 else 1.44 ) else
-	if maxspeed=100					then ( if eco then 1.05 else if ecofast then 1.00 else 1.30 ) else
-	if maxspeed=110					then ( if eco then 1.17 else if ecofast then 1.02 else 1.18 ) else
-	if highway=trunk|trunk_link			then ( if eco then 1.17 else if ecofast then 1.02 else 1.18 ) else
-	if maxspeed=120					then ( if eco then 1.29 else if ecofast then 1.05 else 1.08 ) else
-	if maxspeed=130					then ( if eco then 1.40 else if ecofast then 1.08 else 1.00 ) else
-	if highway=motorway|motorway_link		then ( if eco then 1.40 else if ecofast then 1.08 else 1.00 ) else
+else (  
+	if maxspeed=10											then if eco then 2.49 else if ecofast then 5.81 else 13.0 else
+	if or maxspeed=20 or highway=bridleway	goodtrack  		then if eco then 1.57 else if ecofast then 3.07 else 6.50 else
+	if or maxspeed=30 highway=living_street					then if eco then 1.18 else if ecofast then 2.12 else 4.33 else
+	if maxspeed=40											then if eco then 1.07 else if ecofast then 1.69 else 3.25 else
+	if or maxspeed=50|urban	urbanc							then if eco then 1.03 else if ecofast then 1.44 else 2.60 else
+	if or maxspeed=60 thirdc								then if eco then 1.02 else if ecofast then 1.28 else 2.17 else
+	if or maxspeed=70 secondc								then if eco then 1.00 else if ecofast then 1.16 else 1.86 else
+	if maxspeed=80											then if eco then 1.00 else if ecofast then 1.08 else 1.63 else
+	if or maxspeed=90|rural	firstc							then if eco then 1.01 else if ecofast then 1.02 else 1.44 else
+	if maxspeed=100											then if eco then 1.05 else if ecofast then 1.00 else 1.30 else
+	if or maxspeed=110 trunkc								then if eco then 1.17 else if ecofast then 1.02 else 1.18 else
+	if maxspeed=120											then if eco then 1.29 else if ecofast then 1.05 else 1.08 else
+	if or maxspeed=130 motorwayc							then if eco then 1.40 else if ecofast then 1.08 else 1.00 else	
 	
-	if route=ferry             		then 5.67 else 
-
-	if highway=bridleway 				then ( if eco then 1.57 else if ecofast then 3.07 else 6.50 ) else # 20
-	if highway=residential|service		then ( if eco then 1.03 else if ecofast then 1.44 else 2.60 ) else # 50
-	if highway=living_street 			then ( if eco then 1.18 else if ecofast then 2.12 else 4.33 ) else # 30
-	if highway=track|road|path    		then 
-	   if or tracktype=grade1 ispaved   	then ( if eco then 1.57 else if ecofast then 3.07 else 6.50 )  # 20
-								else  30
-      else 10000
+	if badtrack   											then 30
+															else 10000
 )
 	
-else if ecofast then 
-(  
-	if maxspeed=10					then ( if eco then 2.49 else if ecofast then 5.81 else 13.0 ) else
-	if maxspeed=20					then ( if eco then 1.57 else if ecofast then 3.07 else 6.50 ) else
-	if maxspeed=30					then ( if eco then 1.18 else if ecofast then 2.12 else 4.33 ) else
-	if maxspeed=40					then ( if eco then 1.07 else if ecofast then 1.69 else 3.25 ) else
-	if maxspeed=50					then ( if eco then 1.03 else if ecofast then 1.44 else 2.60 ) else
-	if maxspeed=urban					then ( if eco then 1.03 else if ecofast then 1.44 else 2.60 ) else
-	if highway=unclassified				then ( if eco then 1.03 else if ecofast then 1.44 else 2.60 ) else
-	if maxspeed=60					then ( if eco then 1.02 else if ecofast then 1.28 else 2.17 ) else
-	if highway=tertiary|tertiary_link		then ( if eco then 1.02 else if ecofast then 1.28 else 2.17 ) else
-	if maxspeed=70					then ( if eco then 1.00 else if ecofast then 1.16 else 1.86 ) else
-	if highway=secondary|secondary_link		then ( if eco then 1.00 else if ecofast then 1.16 else 1.86 ) else
-	if maxspeed=80					then ( if eco then 1.00 else if ecofast then 1.08 else 1.63 ) else
-	if maxspeed=90					then ( if eco then 1.01 else if ecofast then 1.02 else 1.44 ) else
-	if maxspeed=rural					then ( if eco then 1.01 else if ecofast then 1.02 else 1.44 ) else
-	if highway=primary|primary_link		then ( if eco then 1.01 else if ecofast then 1.02 else 1.44 ) else
-	if maxspeed=100					then ( if eco then 1.05 else if ecofast then 1.00 else 1.30 ) else
-	if maxspeed=110					then ( if eco then 1.17 else if ecofast then 1.02 else 1.18 ) else
-	if highway=trunk|trunk_link			then ( if eco then 1.17 else if ecofast then 1.02 else 1.18 ) else
-	if maxspeed=120					then ( if eco then 1.29 else if ecofast then 1.05 else 1.08 ) else
-	if maxspeed=130					then ( if eco then 1.40 else if ecofast then 1.08 else 1.00 ) else
-	if highway=motorway|motorway_link		then ( if eco then 1.40 else if ecofast then 1.08 else 1.00 ) else
-	
-	if route=ferry             		then 5.67 else 
 
-	if highway=bridleway 				then ( if eco then 1.57 else if ecofast then 3.07 else 6.50 ) else # 20
-	if highway=residential|service		then ( if eco then 1.03 else if ecofast then 1.44 else 2.60 ) else # 50
-	if highway=living_street 			then ( if eco then 1.18 else if ecofast then 2.12 else 4.33 ) else # 30
-	if highway=track|road|path    		then 
-	   if or tracktype=grade1 ispaved   	then ( if eco then 1.57 else if ecofast then 3.07 else 6.50 )  # 20
-								else  30
-      else 10000
-)
-
-else if fast then 
-(  
-	if maxspeed=10					then ( if eco then 2.49 else if ecofast then 5.81 else 13.0 ) else
-	if maxspeed=20					then ( if eco then 1.57 else if ecofast then 3.07 else 6.50 ) else
-	if maxspeed=30					then ( if eco then 1.18 else if ecofast then 2.12 else 4.33 ) else
-	if maxspeed=40					then ( if eco then 1.07 else if ecofast then 1.69 else 3.25 ) else
-	if maxspeed=50					then ( if eco then 1.03 else if ecofast then 1.44 else 2.60 ) else
-	if maxspeed=urban					then ( if eco then 1.03 else if ecofast then 1.44 else 2.60 ) else
-	if highway=unclassified				then ( if eco then 1.03 else if ecofast then 1.44 else 2.60 ) else
-	if maxspeed=60					then ( if eco then 1.02 else if ecofast then 1.28 else 2.17 ) else
-	if highway=tertiary|tertiary_link		then ( if eco then 1.02 else if ecofast then 1.28 else 2.17 ) else
-	if maxspeed=70					then ( if eco then 1.00 else if ecofast then 1.16 else 1.86 ) else
-	if highway=secondary|secondary_link		then ( if eco then 1.00 else if ecofast then 1.16 else 1.86 ) else
-	if maxspeed=80					then ( if eco then 1.00 else if ecofast then 1.08 else 1.63 ) else
-	if maxspeed=90					then ( if eco then 1.01 else if ecofast then 1.02 else 1.44 ) else
-	if maxspeed=rural					then ( if eco then 1.01 else if ecofast then 1.02 else 1.44 ) else
-	if highway=primary|primary_link		then ( if eco then 1.01 else if ecofast then 1.02 else 1.44 ) else
-	if maxspeed=100					then ( if eco then 1.05 else if ecofast then 1.00 else 1.30 ) else
-	if maxspeed=110					then ( if eco then 1.17 else if ecofast then 1.02 else 1.18 ) else
-	if highway=trunk|trunk_link			then ( if eco then 1.17 else if ecofast then 1.02 else 1.18 ) else
-	if maxspeed=120					then ( if eco then 1.29 else if ecofast then 1.05 else 1.08 ) else
-	if maxspeed=130					then ( if eco then 1.40 else if ecofast then 1.08 else 1.00 ) else
-	if highway=motorway|motorway_link		then ( if eco then 1.40 else if ecofast then 1.08 else 1.00 ) else
-	
-	if route=ferry             		then 5.67 else 
-
-	if highway=bridleway 				then ( if eco then 1.57 else if ecofast then 3.07 else 6.50 ) else # 20
-	if highway=residential|service		then ( if eco then 1.03 else if ecofast then 1.44 else 2.60 ) else # 50
-	if highway=living_street 			then ( if eco then 1.18 else if ecofast then 2.12 else 4.33 ) else # 30
-	if highway=track|road|path    		then 
-	   if or tracktype=grade1 ispaved   	then ( if eco then 1.57 else if ecofast then 3.07 else 6.50 )  # 20
-								else  30
-      else 10000
-)
 
 
 ---context:node  # following code refers to node tags
