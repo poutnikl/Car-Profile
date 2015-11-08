@@ -59,13 +59,7 @@ else if ( highway=service   )     				then 10
 												else 11
 
 assign initialcost
-if route=ferry then 10000
-else if ( highway=motorway|motorway_link|trunk|trunk_link ) then 200 # usually easy joining
-else if ( highway=primary|primary_link )                    then 400
-else if ( highway=secondary|secondary_link )                then 200
-else if ( highway=tertiary|tertiary_link|unclassified )     then 120
-else if ( highway=residential|living_street|service   )     then 80
-else 50
+if route=ferry then 10000 else 200
 
 		
 
