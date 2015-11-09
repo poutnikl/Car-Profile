@@ -6,7 +6,7 @@
 
 ---context:global
 
-assign drivestyle 2			# must have integer values 0=short,1=eco,2=ecofast(preferred to eco),3=fast
+assign drivestyle 3			# must have integer values 0=short,1=eco,2=ecofast(preferred to eco),3=fast
 							# see legend at file end
 assign avoid_motorways	0	# avoid motorways+motorroads, either toll or free ones ( if on moped or on "sightseeing tour" )
 assign avoid_toll		0	# avoid paid ways and toll points
