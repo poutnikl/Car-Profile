@@ -210,3 +210,5 @@ assign initialcost
        switch caraccess
               0
               1000000
+
+# Late kicking on the versioning, not initial, but version 1.0.0
