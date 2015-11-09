@@ -1,6 +1,6 @@
 # Car-Profile
-SighSeeing focus test car profile, based on Car-test.brf
-
+Car-Poutnik is an attempt for SightSeeing kind of a ride, based on Car-test.brf
+---------
 As car route are usually longer than bicycle routes, you may notice time outs in Locus fo routes longer than 50-100 km, if navigation is configured to use Brouter. The reason is Brouter is computation intensive and Locus may not be patient enough.
 
 There are 2 solutions>
