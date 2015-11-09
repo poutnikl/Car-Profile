@@ -72,24 +72,22 @@ assign  badtrack	and highway=track|road|path not goodtrack
 		
 assign initialclassifier
 if route=ferry then 1
-else if ( highway=motorway )					then 2
-else if ( highway=trunk )						then 3
-else if ( highway=primary )						then 4
-else if ( highway=secondary )					then 5
-else if ( highway=tertiary )					then 6
+else if ( highway=motorway|motorway_link )		then 2
+else if ( highway=trunk|trunk_link )			then 3
+else if ( highway=primary|primary_link )		then 4
+else if ( highway=secondary|secondary_link )	then 5
+else if ( highway=tertiary|tertiary_link )		then 6
 else if ( highway=unclassified ) 				then 7
 else if ( highway=residential   )				then 8
 else if ( highway=living_street  )				then 9
 else if ( highway=service   )     				then 10
-else if ( highway=motorway_link )				then 11
-else if ( highway=trunk_link )					then 12
-else if ( highway=primary_link )				then 13
-else if ( highway=secondary_link )				then 14
-else if ( highway=tertiary_link )				then 15
-												else 16
+												else 11
 assign initialcost
 if route=ferry then 20000 
-else if ( highway=motorway|motorway_link )		then 200
+else 
+multiply 	node_penalty_multiplier
+(
+if		( highway=motorway|motorway_link )		then 200
 else if ( highway=trunk|trunk_link )			then 200
 else if ( highway=primary|primary_link )		then 300
 else if ( highway=secondary|secondary_link )	then 220
@@ -99,7 +97,7 @@ else if ( highway=residential   )				then 100
 else if ( highway=living_street  )				then 70
 else if ( highway=service   )     				then 100
 												else 70
-
+)
 		
 
 #
@@ -252,7 +250,7 @@ assign initialcost
        switch caraccess
                 multiply 	node_penalty_multiplier
 							if highway=traffic_signals then 300 else
-							if highway=stop then 2200 else
+							if highway=stop then 220 else
 							if highway=crossing then 50 else 
 							if highway=bus_stop then 50 
 												else 0
@@ -266,10 +264,15 @@ assign initialcost
 # 
 # Version history
 # Late kicking on the versioning, not initial, but version 1.0.0
-# V1.0.1: 
+# V1.0.2: 
 # -nodes-
 # + added some node distance penalties 
 # + involved penalty multiplier for start/stop events distance penalties, as being fuel hungry.
 # -ways-
 # * tweaked way initial costs and turncosts of ways
 # + decreased motorway cruising speed to 110 km/h for eco modes, to avoid unnecessery penalties.
+# V1.0.1: 
+
+# -ways-
+# * tweaked way initial costs and turncosts
+
