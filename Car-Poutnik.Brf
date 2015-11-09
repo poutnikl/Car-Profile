@@ -1,10 +1,10 @@
 #
 # Car-Routing is experimental !!!
-#
 # DO NOT USE FOR ACTUAL NAVIGATION
-#
 # Turn restrictions are missing, leading to wrong routes
+#
 # Based on Car-test.brf
+# Experiment focused for sightseeing like tours, avoiding fast roads.
 
 ---context:global
 
