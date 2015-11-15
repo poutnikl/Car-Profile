@@ -2,7 +2,10 @@
 # Car-Routing is experimantal and expect local failures, as turn restrictions are missing, leading to possible wrong routes
 # Based on standard Car-test, added speed and eco preferences to roads.
 # See the bottom for version history
-# Version 1.0.3
+# V1.0.4:
+# global:		* tweaked uphillcost to 30, uphill/downhill cutoffs to 0.5
+# code rearrangement
+
 
 ---context:global
 
@@ -25,25 +28,36 @@ assign fast		equal drivestyle 3
 #internal settings
 
 assign downhillcost 0
-assign downhillcutoff 0
-assign uphillcost 7 # ( 1500 kg, 50 kW engine climbs about 14 km/h )
-assign uphillcutoff 0
+assign downhillcutoff 0.5
+assign uphillcost 30		# ( horizontally, 6 L/100 km, 37 MJ/L, 25% engine efficiency gives about 500 J/m.
+						# ( vertically, 1500 kg car mass gives about 15000 J/m, so uphillcost 15000/500 = 30 ) 
+assign uphillcutoff 0.5
 
 assign validForCars 1
 assign pass1coefficient 1.5
 
+assign penalty_coef_short	0.0
+assign penalty_coef_fast	1.0
+assign penalty_coef_eco		2.0
+assign penalty_coef_ecofast	add multiply penalty_coef_fast  0.4
+                                multiply penalty_coef_eco 	0.6
+
 assign node_penalty_multiplier
-	switch short	0.0 switch	fast	1.0	switch ecofast	1.6 switch eco	2.0 1.0
+	switch short	penalty_coef_short		switch fast	penalty_coef_fast
+	switch ecofast	penalty_coef_ecofast	switch eco	penalty_coef_eco	1.0
 				
 assign turn_penalty_multiplier
-	switch short	0.0 switch	fast	1.0	switch ecofast	1.6 switch eco	2.0 1.0
+	switch short	penalty_coef_short		switch fast	penalty_coef_fast
+	switch ecofast	penalty_coef_ecofast	switch eco	penalty_coef_eco	1.0
 
 assign initial_penalty_multiplier
-	switch short	0.0 switch	fast	1.0	switch ecofast	1.6 switch eco	2.0 1.0		
+	switch short	penalty_coef_short		switch fast	penalty_coef_fast
+	switch ecofast	penalty_coef_ecofast	switch eco	penalty_coef_eco	1.0
+	
 
 ---context:way   # following code refers to way-tags
 
-assign ispaved or surface=paved or surface=asphalt or surface=concrete surface=paving_stones
+assign ispaved		surface=paved|asphalt|concrete|paving_stones|sett
 
 assign	thirdc		highway=tertiary|tertiary_link
 assign	secondc		highway=secondary|secondary_link
@@ -52,7 +66,7 @@ assign  trunkc		highway=trunk|trunk_link
 assign	motorwayc	highway=motorway|motorway_link
 assign	urbanc		highway=unclassified|residential|service
 assign  goodtrack	and highway=track|road|path or tracktype=grade1 ispaved
-assign  badtrack	or highway=footway and highway=track|road|path not goodtrack
+assign  badtrack	or highway=footway	and highway=track|road|path not goodtrack
 
 assign turncost if junction=roundabout then 0 else 
 
@@ -255,6 +269,9 @@ assign initialcost
 # for FastEco, they are weighted from Eco and Fast
 # 
 # Version history
+# V1.0.4:
+# global:		* tweaked uphillcost to 30, uphill/downhill cutoffs to 0.5
+# code rearrangement
 # V1.0.3:	ways:		* tweaked initial costs
 #			ways:		+ initial and turn penalty multipliers to achieve various effect for various profiles
 #			ways:		* decresed link penalty
