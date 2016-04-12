@@ -1,12 +1,7 @@
-#
 # Car-Routing is experimantal and expect local failures, as turn restrictions are missing, leading to possible wrong routes
 # Based on standard Car-test, added speed and eco preferences to roads.
 # See the bottom for version history
-# V1.0.4:
-# global:		* tweaked uphillcost to 30, uphill/downhill cutoffs to 0.5
-# code rearrangement
-
-
+# V1.0.5
 ---context:global
 
 assign drivestyle 2			# must have integer values 0=short,1=eco,2=ecofast(preferred to eco),3=fast
@@ -24,6 +19,8 @@ assign short	equal drivestyle 0
 assign eco		equal drivestyle 1
 assign ecofast	equal drivestyle 2
 assign fast		equal drivestyle 3
+
+assign   turnInstructionMode  = 2       # 0=none, 1=gpsies-style, 2=locus-style
 
 #internal settings
 
@@ -106,7 +103,31 @@ else if ( highway=residential   )				then 100	else if ( highway=living_street  )
 else if ( highway=service   )     				then 100
 else 70
 )
-		
+	
+assign priorityclassifier =
+
+       if ( highway=motorway                  ) then  101
+  else if ( highway=motorway_link             ) then  100
+  else if ( highway=trunk                     ) then  91
+  else if ( highway=trunk_link                ) then  90
+  else if ( highway=primary                   ) then  88
+  else if ( highway=primary_link              ) then  87
+  else if ( highway=secondary                 ) then  86
+  else if ( highway=secondary_link            ) then  85
+  else if ( highway=tertiary                  ) then  84
+  else if ( highway=tertiary_link             ) then  83
+  else if ( highway=unclassified              ) then  82
+  else if ( highway=residential|living_street ) then  50
+  else if ( highway=service                   ) then  40
+  else if ( highway=cycleway                  ) then  30
+  else if ( highway=bridleway                 ) then  20
+  else if ( highway=track|road                ) then  20
+  else if ( highway=footway                   ) then  10
+  else if ( highway=steps                     ) then  10
+  else if ( highway=pedestrian                ) then  10
+  else if ( highway=path                      ) then  5
+  else 0
+	
 
 #
 # calculate logical car access
@@ -219,10 +240,8 @@ else (
 	if maxspeed=80											then if eco then 1.00 else if ecofast then 1.08 else 1.63 else
 	if or maxspeed=90|rural	firstc							then if eco then 1.01 else if ecofast then 1.02 else 1.44 else
 	if maxspeed=100											then if eco then 1.05 else if ecofast then 1.00 else 1.30 else
-	if or maxspeed=110 or trunkc 
-		( and ( or eco ecofast )  motorwayc )
-															then if eco then 1.17 else if ecofast then 1.02 else 1.18 else
-	if maxspeed=120											then if eco then 1.29 else if ecofast then 1.05 else 1.08 else
+	if or maxspeed=110 or trunkc eco						then if eco then 1.17 else if ecofast then 1.02 else 1.18 else
+	if or maxspeed=120 ecofast								then if eco then 1.29 else if ecofast then 1.05 else 1.08 else
 	if or maxspeed=130 motorwayc							then if eco then 1.40 else if ecofast then 1.08 else 1.00 else	
 	
 	if badtrack   											then 30
@@ -269,15 +288,15 @@ assign initialcost
 # for FastEco, they are weighted from Eco and Fast
 # 
 # Version history
-# V1.0.4:
-# global:		* tweaked uphillcost to 30, uphill/downhill cutoffs to 0.5
-# code rearrangement
+# V1.0.5                        + added navigation instructions for Locus
+# V1.0.4:      global:		* tweaked uphillcost to 30, uphill/downhill cutoffs to 0.5
+#                               * code rearrangement
 # V1.0.3:	ways:		* tweaked initial costs
-#			ways:		+ initial and turn penalty multipliers to achieve various effect for various profiles
-#			ways:		* decresed link penalty
+#		ways:		+ initial and turn penalty multipliers to achieve various effect for various profiles
+#		ways:		* decresed link penalty
 # V1.0.2:	ways:		* tweaked initial costs and turncosts
 # V1.0.1:	nodes:		+ added some distance penalties 
-#						+ involved penalty multiplier for start/stop events distance penalties, as being fuel hungry.
-#			ways:		* tweaked initial costs and turncosts of ways
+#	         		+ involved penalty multiplier for start/stop events distance penalties, as being fuel hungry.
+#		ways:		* tweaked initial costs and turncosts of ways
 #						+ decreased motorway cruising speed to 110 km/h for eco modes, to avoid unnecessery penalties.
-# V1.0.0:				not initial version, due late start of the versioning
+# V1.0.0: not initial version, due late start of the versioning
