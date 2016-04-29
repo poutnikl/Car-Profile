@@ -1,7 +1,7 @@
 # Car-Routing is experimantal and expect local failures, as turn restrictions are missing, leading to possible wrong routes
 # Based on standard Car-test, added speed and eco preferences to roads.
 # See the bottom for version history
-# V1.0.7
+# V1.0.8                      ! way: fixing caraccess and access penalty
 ---context:global
 
 assign drivestyle 3           # must have integer values 0=short,1=eco,2=ecofast(preferred to eco),3=fast(default)
@@ -125,13 +125,11 @@ else if  or urbanc highway=unclassified     then 100
 # calculate logical car access
 #
 assign caraccess
-        if and avoid_motorways motorroad=yes then 0 else
         switch motorcar=
               switch motor_vehicle=
                      switch vehicle=
                             switch access=
-                                (
-                                   switch motorwayc                                    if ( or avoid_motorways and avoid_toll toll=yes ) then 0 else 1
+                                   (
                                    switch ismainroad                                   1
                                    switch route=ferry                                  1
                                    switch urbanc                                       1
@@ -146,7 +144,10 @@ assign caraccess
 
 assign accesspenalty
        switch caraccess
-              ( if ( and avoid_motorways motorroad=yes ) then 10000 else 0 )
+              ( if      ( and avoid_motorways ( or  motorwayc motorroad=yes ) ) then 10000
+                else if ( and avoid_toll toll=yes )                             then 10000
+                                                                                else 0 
+               )
               10000
 
 assign onewaypenalty
@@ -267,6 +268,7 @@ assign initialcost
 # for FastEco, they are weighted from Eco and Fast
 # 
 # Version history
+# V1.0.8                ! way: fixing caraccess and access penalty
 # V1.0.7                * global: added downloadcost ( downhill breaking )
 #                       * code rearrangement and clean up
 #                       * simplified turn penalty
