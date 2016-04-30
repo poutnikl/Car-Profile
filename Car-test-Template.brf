@@ -1,7 +1,7 @@
 # Car-Routing is experimantal and expect local failures, as turn restrictions are missing, leading to possible wrong routes
 # Based on standard Car-test, added speed and eco preferences to roads.
 # See the bottom for version history
-# V1.0.10                * way: tweaked turncost
+# V1.0.11   * global     : cancelled downhillcost
 ---context:global
 
 assign drivestyle 3           # must have integer values 0=short,1=eco,2=ecofast(preferred to eco),3=fast(default)
@@ -9,7 +9,7 @@ assign drivestyle 3           # must have integer values 0=short,1=eco,2=ecofast
 assign avoid_motorways   0    # avoid motorways+motorroads, either toll or free ones ( if on moped or on "sightseeing tour" )
 assign avoid_toll        0    # avoid paid ways and toll points
 assign avoid_unpaved     1    # 0=allowed with high penalty, 1=forbidden to use ever
-assign main_and_urban    0    # 0=default, 1 forbids all highways by main network and urban areas.
+assign main_and_urban    1    # 0=default, 1 forbids all highways by main network and urban areas.
 
 assign   turnInstructionMode  = 2  # 0=none, 1=auto-choose, 2=locus-style, 3=osmand-style, 4=comment-style, 5=gpsies-style
 
@@ -29,7 +29,7 @@ assign fast       equal drivestyle 3
 assign uphillcost       30        # ( horizontally, 6 L/100 km, 37 MJ/L, 25% engine efficiency gives about 500 J/m.
                                   # ( vertically, 1500 kg car mass gives about 15000 J/m, so uphillcost 15000/500 = 30 ) 
 assign uphillcutoff     0.5
-assign downhillcost     30
+assign downhillcost     0
 assign downhillcutoff   1.5
 
 assign validForCars       1
@@ -270,6 +270,7 @@ assign initialcost
 # for FastEco, they are weighted from Eco and Fast
 # 
 # Version history
+# V1.0.11   * global     : cancelled downhillcost
 # V1.0.10   * way        : tweaked turncost
 # V1.0.9    + global+way : added flag main_and_urban, keeping car on mainroads and urban communications.
 # V1.0.8    ! way        : fixing caraccess and access penalty
