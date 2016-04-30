@@ -1,7 +1,7 @@
 # Car-Routing is experimantal and expect local failures, as turn restrictions are missing, leading to possible wrong routes
 # Based on standard Car-test, added speed and eco preferences to roads.
 # See the bottom for version history
-# V1.0.9                ! global+way: added flag main_and_urban, keeping car on mainroads and urban communications.
+# V1.0.10                * way: tweaked turncost
 ---context:global
 
 assign drivestyle 3           # must have integer values 0=short,1=eco,2=ecofast(preferred to eco),3=fast(default)
@@ -82,8 +82,7 @@ assign turncost if junction=roundabout then 0 else
 multiply     turn_penalty_multiplier
 
 (
-     if          ismainroad                          then 200
-     else if     or highway=unclassified urbanc      then 120
+     if          or ismainroad urbanc  then 200
      else                                                  80
 )
 
@@ -271,6 +270,7 @@ assign initialcost
 # for FastEco, they are weighted from Eco and Fast
 # 
 # Version history
+# V1.0.10   * way        : tweaked turncost
 # V1.0.9    + global+way : added flag main_and_urban, keeping car on mainroads and urban communications.
 # V1.0.8    ! way        : fixing caraccess and access penalty
 # V1.0.7    * global     : added downloadcost ( downhill breaking )
