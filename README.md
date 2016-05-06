@@ -11,7 +11,7 @@ While saving, do not forget the .brf extension.
 |Car-Eco               |assign drivestyle 1             |Sacrifies speed for fuel, but FastEco seems better   |
 |Car-TollFree          |assign avoid_toll 1             |Avoids paid motorways, boothes and bridges           |
 |Car-unpaved           |assign avoid_unpaved 0          |Stops avoiding unpaved ways                          |
-|Car-MainUrb           |assign main_and_urban 1         |Acepts only mainroads and urban communiucations      |
+|Car-MainUrb           |assign main_and_urban 1         |Accepts only mainroads and urban communications      |
 |                      |                                |Stronger than avoid unpaved, for long range routing  |
 
 [Visit also my Brouter profiles wiki pages](https://github.com/poutnikl/Brouter-profiles/wiki)
