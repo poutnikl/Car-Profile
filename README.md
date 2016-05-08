@@ -1,7 +1,7 @@
 
 #### Experimental Car profile template. Beware of lack of turning restrictions.
 
-This is a development version. You can easily derive up-to-date versions of my [Car profiles](https://github.com/poutnikl/Brouter-profiles/wiki/Car-profiles) from this latest [Template file](https://raw.githubusercontent.com/poutnikl/Car-Profile/master/Car-test-Template.brf). 
+This is a development version. You can easily derive up-to-date versions of [Car profiles](https://github.com/poutnikl/Brouter-profiles/wiki/Car-profiles) from this latest [Car profile Template file](https://raw.githubusercontent.com/poutnikl/Car-Profile/master/Car-test-Template.brf). 
 While saving, do not forget the .brf extension.
 
 |Profile name          |What to change                  |Comment                                              |
