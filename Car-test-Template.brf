@@ -1,19 +1,28 @@
 # Car-Routing is experimantal and expect local failures, as turn restrictions are missing, leading to possible wrong routes
 # Based on standard Car-test, added speed and eco preferences to roads.
 # See the bottom for version history
-# V1.0.12   * all        : backported changes from car-test, code rearrangement
+# V1.0.13   +            : main_only network switch
+            +            : rearranged restriction code
 ---context:global
 
-assign drivestyle 3           # must have integer values 0=short,1=eco,2=ecofast(preferred to eco),3=fast(default)
-                              # see legend at file end
-assign avoid_motorways   0    # avoid motorways+motorroads, either toll or free ones ( if on moped or on "sightseeing tour" )
-assign avoid_toll        0    # avoid paid ways and toll points
-assign avoid_unpaved     1    # 0=allowed with high penalty, 1=forbidden to use ever
-assign main_and_urban    0    # 0=default, 1 forbids all highways by main network and urban areas.
+# must have integer values 0=short,1=eco,2=ecofast(preferred to eco),3=fast(default)
+assign drivestyle             3 # default 3
+assign avoid_toll             0 # default 0 - avoid paid ways and toll points
+assign road_restriction       2 # default 2
+
+#road_restriction
+# 0=avoid motorways                  - like if on moped or on "sightseeing tour" 
+# 1=no restriction(but toll)
+# 2=avoid unpaved                    - forbidden to ever use, otherwise just with high penalty
+# 3=mainroads and residental roads   - forbidden unpaved and minor paved roads
+# 4=mainroads only ( long distance ) - allowed only mainroad network
 
 assign   turnInstructionMode  = 2  # 0=none, 1=auto-choose, 2=locus-style, 3=osmand-style, 4=comment-style, 5=gpsies-style
 
 #internal settings
+
+assign pass1coefficient   1.5
+assign pass2coefficient   0
 
 # drivestyle 0=short      -    Shortest way possible ( for completness, not reaslly useful )
 # drivestyle 1=eco        -    Least estimated fuel consumption
@@ -33,8 +42,6 @@ assign downhillcost     0
 assign downhillcutoff   1.5
 
 assign validForCars       1
-assign pass1coefficient   1.3
-assign pass2coefficient   -1
 
 assign penalty_coef_short     0.0
 assign penalty_coef_fast      1.0
@@ -131,13 +138,21 @@ assign caraccess
                      or motor_vehicle=yes or motor_vehicle=permissive or motor_vehicle=designated motor_vehicle=destination
               or motorcar=yes or motorcar=permissive or motorcar=designated motorcar=destination
 
+# assign road_restriction X
+# 0=avoid motorways
+# 1=no restriction(but toll)
+# 2=avoid unpaved
+# 3=mainroads and urban areas only
+# 4=mainroads only ( long distance )
+
 assign accesspenalty
        switch caraccess
-              ( if      ( and avoid_motorways ( or  motorwayc motorroad=yes ) ) then 10000
-                else if ( and avoid_toll toll=yes )                             then 10000
-				else if ( and main_and_urban not ( or ismainroad urbanc ) )     then 10000
-				else if ( and badtrack avoid_unpaved  )                         then 10000
-                                                                                else 0 
+              ( if      ( and equal road_restriction 0 ( or  motorwayc motorroad=yes ) )  then 10000
+                else if ( and avoid_toll toll=yes )                                       then 10000
+				else if ( and equal road_restriction 3 not ( or ismainroad urbanc ) )     then 10000
+                else if ( and equal road_restriction 4 not ( ismainroad           ) )     then 10000
+                else if ( and equal road_restriction 2     ( badtrack )             )     then 10000
+                                                                                          else 0 
                )
               10000
 
@@ -265,6 +280,8 @@ assign initialcost
 # for FastEco, they are weighted from Eco and Fast
 # 
 # Version history
+# V1.0.13   +            : main_only network switch
+            +            : rearranged restriction code
 # V1.0.12   * all        : backported changes from car-test, code rearrangement
 # V1.0.11   * global     : cancelled downhillcost
 # V1.0.10   * way        : tweaked turncost
