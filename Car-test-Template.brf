@@ -17,7 +17,7 @@ assign road_restriction       2 # default 2
 # 3=mainroads and residental roads   - forbidden unpaved and minor paved roads
 # 4=mainroads only ( long distance ) - allowed only mainroad network
 
-assign   turnInstructionMode  = 2  # 0=none, 1=auto-choose, 2=locus-style, 3=osmand-style, 4=comment-style, 5=gpsies-style
+assign   turnInstructionMode  = 1  # 0=none, 1=auto-choose, 2=locus-style, 3=osmand-style
 
 #internal settings
 
