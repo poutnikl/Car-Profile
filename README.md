@@ -14,6 +14,7 @@ While saving, do not forget the .brf extension.
 |Car-Unpaved           |assign road_restriction 1       |Stops avoiding unpaved ways                          |
 |Car-MainUrb           |assign road_restriction 3       |Accepts only mainroads and urban communications      |
 |Car-LongDists         |assign road_restriction 4       |Accepts only mainroad network ( long distances )     |
+|Car-Whatever          |Any of above                    |The style/toll/restriction changes can be combined   |
 
 [Visit also my Brouter profiles wiki pages](https://github.com/poutnikl/Brouter-profiles/wiki)
 
