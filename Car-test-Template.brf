@@ -1,14 +1,17 @@
-# Car-Routing is experimantal and expect local failures, as turn restrictions are missing, leading to possible wrong routes
-# Based on standard Car-test, added speed and eco preferences to roads.
+
+# Car-Routing is experimrntal and expect local failures, as turn restrictions
+# are missing by current Brouter design, leading to possible wrong routes
+# Template was originally based on standard Car-test, added speed and eco preferences to roads.
+# Progressively more enhancements were added.
 # See the bottom for version history
-# V1.0.13   +            : main_only network switch
-            +            : rearranged restriction code
+# V1.0.14   * Implemented very long distance restrictions, ! small fixes
+            
 ---context:global
 
 # must have integer values 0=short,1=eco,2=ecofast(preferred to eco),3=fast(default)
 assign drivestyle             3 # default 3
-assign avoid_toll             0 # default 0 - avoid paid ways and toll points
-assign road_restriction       2 # default 2
+assign avoid_toll             1 # default 0 / 1=avoid paid ways and toll points like booths or bridges
+assign road_restriction       5 # default 2, 4 and above is 1pass only
 
 #road_restriction
 # 0=avoid motorways                  - like if on moped or on "sightseeing tour" 
@@ -16,15 +19,21 @@ assign road_restriction       2 # default 2
 # 2=avoid unpaved                    - forbidden to ever use, otherwise just with high penalty
 # 3=mainroads and residental roads   - forbidden unpaved and minor paved roads
 # 4=mainroads only ( long distance ) - allowed only mainroad network
+# 5=mainroads sec  ( long distance ) - allowed only mainroad network, secondary and better
+# 6=mainroads prim ( long distance ) - allowed only mainroad network, primary   and better
 
 assign   turnInstructionMode  = 1  # 0=none, 1=auto-choose, 2=locus-style, 3=osmand-style
 
 #internal settings
 
-assign pass1coefficient   1.5
-assign pass2coefficient   0
+assign pass1coefficient   if   (  greater 4 road_restriction  ) then 1.5 
+                          else if ( equal  road_restriction 4 ) then 1.6
+                          else if ( equal  road_restriction 5 ) then 1.7
+                          else                                       1.8
+                          
+assign pass2coefficient   if      ( greater 4 road_restriction ) then 0  else -1
 
-# drivestyle 0=short      -    Shortest way possible ( for completness, not reaslly useful )
+# drivestyle 0=short      -    Shortest way possible ( for completeness, not really useful )
 # drivestyle 1=eco        -    Least estimated fuel consumption
 # drivestyle 2=fasteco    -    Balanced fuel consuption and travel time ( default )
 # drivestyle 3=fast       -    Least travel time, based on lower of explicit maxspeed or defined nominal speed.
@@ -79,7 +88,9 @@ assign  secondc       highway=secondary|secondary_link
 assign  firstc        highway=primary|primary_link    
 assign  trunkc        highway=trunk|trunk_link  
 assign  motorwayc     highway=motorway|motorway_link
-assign  ismainroad    or highway=unclassified or thirdc or secondc or firstc or trunkc motorwayc
+assign  ismainroadprm or firstc or trunkc motorwayc
+assign  ismainroadsec or secondc ismainroadprm
+assign  ismainroad    or highway=unclassified or thirdc ismainroadsec
 assign  urbanc        highway=residential|service|living_street
 assign  goodtrack     and highway=track|road or tracktype=grade1 ispaved
 assign  badtrack      or highway=footway|path  and highway=track|road not goodtrack
@@ -149,9 +160,11 @@ assign accesspenalty
        switch caraccess
               ( if      ( and equal road_restriction 0 ( or  motorwayc motorroad=yes ) )  then 10000
                 else if ( and avoid_toll toll=yes )                                       then 10000
-				else if ( and equal road_restriction 3 not ( or ismainroad urbanc ) )     then 10000
-                else if ( and equal road_restriction 4 not ( ismainroad           ) )     then 10000
-                else if ( and equal road_restriction 2     ( badtrack )             )     then 10000
+				else if ( and ( equal road_restriction 3 ) not ( or ismainroad urbanc ) ) then 10000
+                else if ( and ( equal road_restriction 4 ) not ismainroad               )  then 10000
+                else if ( and ( equal road_restriction 5 ) not ismainroadsec            ) then 10000
+                else if ( and ( equal road_restriction 6 ) not ismainroadprm            ) then 10000
+                else if ( and ( equal road_restriction 2 )     badtrack                 ) then 10000
                                                                                           else 0 
                )
               10000
@@ -280,8 +293,8 @@ assign initialcost
 # for FastEco, they are weighted from Eco and Fast
 # 
 # Version history
-# V1.0.13   +            : main_only network switch
-            +            : rearranged restriction code
+# V1.0.13   +            : main_only network switch + 
+#           +            : rearranged restriction code
 # V1.0.12   * all        : backported changes from car-test, code rearrangement
 # V1.0.11   * global     : cancelled downhillcost
 # V1.0.10   * way        : tweaked turncost
