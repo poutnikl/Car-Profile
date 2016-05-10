@@ -26,7 +26,7 @@ assign   turnInstructionMode  = 1  # 0=none, 1=auto-choose, 2=locus-style, 3=osm
 
 #internal settings
 
-assign pass1coefficient   if   (  greater 4 road_restriction  ) then 1.5 
+assign pass1coefficient   if   (  greater 4 road_restriction  ) then 1.8 
                           else if ( equal  road_restriction 4 ) then 1.6
                           else if ( equal  road_restriction 5 ) then 1.7
                           else                                       1.8
