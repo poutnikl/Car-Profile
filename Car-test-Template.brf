@@ -10,8 +10,8 @@
 
 # must have integer values 0=short,1=eco,2=ecofast(preferred to eco),3=fast(default)
 assign drivestyle             3 # default 3
-assign avoid_toll             1 # default 0 / 1=avoid paid ways and toll points like booths or bridges
-assign road_restriction       5 # default 2, 4 and above is 1pass only
+assign avoid_toll             0 # default 0 / 1=avoid paid ways and toll points like booths or bridges
+assign road_restriction       2 # default 2, 4 and above is 1pass only
 
 #road_restriction
 # 0=avoid motorways                  - like if on moped or on "sightseeing tour" 
