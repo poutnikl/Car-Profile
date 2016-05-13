@@ -10,7 +10,7 @@ While saving, do not forget the .brf extension.
 |Car-FastEco           |assign drivestyle 2             |Trade-off between time and fuel spent                |
 |Car-Eco               |assign drivestyle 1             |Sacrifies speed for fuel, but FastEco seems better   |
 |Car-TollFree          |assign avoid_toll 1             |Avoids paid motorways, boothes and bridges           |
-|Car-NoMotorway        |assign road_restriction 0       |Avoid motorways / motorroads                         |
+|Car-NoMotorway        |assign avoid_motorways  1       |Avoid motorways / motorroads                         |
 |Car-Unpaved           |assign road_restriction 1       |Stops avoiding unpaved ways                          |
 |Car-MainUrb           |assign road_restriction 3       |Accepts only mainroads and urban communications      |
 |Car-LongDists         |assign road_restriction 4       |Long distances - accepts only mainroad network       |
