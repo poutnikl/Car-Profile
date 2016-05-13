@@ -13,7 +13,9 @@ While saving, do not forget the .brf extension.
 |Car-NoMotorway        |assign road_restriction 0       |Avoid motorways / motorroads                         |
 |Car-Unpaved           |assign road_restriction 1       |Stops avoiding unpaved ways                          |
 |Car-MainUrb           |assign road_restriction 3       |Accepts only mainroads and urban communications      |
-|Car-LongDists         |assign road_restriction 4       |Accepts only mainroad network ( long distances )     |
+|Car-LongDists         |assign road_restriction 4       |Long distances - accepts only mainroad network       |
+|Car-LongDists-Sec     |assign road_restriction 5       |Long distances - accepts only secondary or better    |
+|Car-LongDists-Prim    |assign road_restriction 6       |Long distances - accepts only primary or better      |
 |Car-Whatever          |Any of above                    |The style/toll/restriction changes can be combined   |
 
 [Visit also my Brouter profiles wiki pages](https://github.com/poutnikl/Brouter-profiles/wiki)
