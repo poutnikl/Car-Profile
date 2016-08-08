@@ -4,22 +4,23 @@
 # Template was originally based on standard Car-test, added speed and eco preferences to roads.
 # Progressively more enhancements were added.
 # See the bottom for version history
-# V1.0.16 Changed defaults to assign road_restriction 2 ( not avoiding unpaved ) 7/Aug/16
+# V1.0.17 !fixed bug marking highways=unclassified as forbidden for Car Fast profiles
+#         * costfactor tweaks for minor ways.   8-Aug-2016
 
 ---context:global
 
 # must have integer values 0=short,1=eco,2=ecofast(preferred to eco),3=fast(default)
 assign drivestyle             3 # default 3
-assign avoid_motorways        0 # default 0, 1=like if on moped or on "sightseeing tour"
+assign avoid_motorways        0 # default 0, 1=like if on moped or on "sightseeing tour", includes motorroad=yes
 assign avoid_toll             0 # default 0 / 1=avoid paid ways and toll points like booths or bridges
-assign road_restriction       1 # default 2, 4 and above is 1pass only
+assign road_restriction       1 # default 1 ( 4 and above is 1pass only for fast suboptimal calculation )
 assign turnInstructionMode  = 1 # 0=none, 1=auto-choose, 2=locus-style, 3=osmand-style / 1 does not work for Brouter-web
 
 #road_restrictions
 # 
-# 1=no restriction(but toll or motorways)
-# 2=avoid unpaved                    - forbidden to ever use, otherwise just with high penalty
-# 3=mainroads and residental roads   - forbidden unpaved and minor paved roads
+# 1=No restriction(Default), with exception of avoid_motorways and avoid_toll
+# 2=avoid unpaved                    - forbidden to ever use unpaved roads, if 0/false, unpaved can be used with high penalty
+# 3=mainroads and residental roads   - forbidden unpaved and minor paved roads/tracks
 # 4=mainroads only ( long distance ) - allowed only mainroad network
 # 5=mainroads sec  ( long distance ) - allowed only mainroad network, secondary and better
 # 6=mainroads prim ( long distance ) - allowed only mainroad network, primary   and better
@@ -145,14 +146,6 @@ assign caraccess
                      or motor_vehicle=yes or motor_vehicle=permissive or motor_vehicle=designated motor_vehicle=destination
               or motorcar=yes or motorcar=permissive or motorcar=designated motorcar=destination
 
-# assign road_restriction X
-# 
-# 1=no restriction(but toll or motorways)
-# 2=avoid unpaved                    - forbidden to ever use, otherwise just with high penalty
-# 3=mainroads and residental roads   - forbidden unpaved and minor paved roads
-# 4=mainroads only ( long distance ) - allowed only mainroad network
-# 5=mainroads sec  ( long distance ) - allowed only mainroad network, secondary and better
-# 6=mainroads prim ( long distance ) - allowed only mainroad network, primary   and better
 
 assign accesspenalty
        switch caraccess
@@ -194,11 +187,12 @@ assign costfactor
     if short then 1.0 # if someone insists on shortest route, what does not make much sense for cars
 
     else (  
-    if maxspeed=10                                            then if eco then 2.49 else if ecofast then 5.81 else 13.0 else
-    if or maxspeed=20 or highway=bridleway    goodtrack       then if eco then 1.57 else if ecofast then 3.07 else 6.50 else
-    if or maxspeed=30 highway=living_street                   then if eco then 1.18 else if ecofast then 2.12 else 4.33 else
+    if badtrack                                               then 30 else
+    if or maxspeed=10 highway=pedestrian                      then if eco then 2.49 else if ecofast then 5.81 else 13.0 else
+    if or maxspeed=20 highway=bridleway                       then if eco then 1.57 else if ecofast then 3.07 else 6.50 else
+    if or maxspeed=30 or highway=living_street  goodtrack     then if eco then 1.18 else if ecofast then 2.12 else 4.33 else
     if maxspeed=40                                            then if eco then 1.07 else if ecofast then 1.69 else 3.25 else
-    if or maxspeed=50|urban    urbanc                         then if eco then 1.03 else if ecofast then 1.44 else 2.60 else
+    if or maxspeed=50|urban or urbanc  highway=unclassified   then if eco then 1.03 else if ecofast then 1.44 else 2.60 else
     if or maxspeed=60 thirdc                                  then if eco then 1.02 else if ecofast then 1.28 else 2.17 else
     if or maxspeed=70 secondc                                 then if eco then 1.00 else if ecofast then 1.16 else 1.86 else
     if maxspeed=80                                            then if eco then 1.00 else if ecofast then 1.08 else 1.63 else
@@ -206,8 +200,7 @@ assign costfactor
     if maxspeed=100                                           then if eco then 1.05 else if ecofast then 1.00 else 1.30 else
     if or maxspeed=110 or trunkc eco                          then if eco then 1.17 else if ecofast then 1.02 else 1.18 else
     if or maxspeed=120 ecofast                                then if eco then 1.29 else if ecofast then 1.05 else 1.08 else
-    if or maxspeed=130 motorwayc                              then if eco then 1.40 else if ecofast then 1.08 else 1.00 else    
-    if badtrack                                               then 30
+    if or maxspeed=130 motorwayc                              then if eco then 1.40 else if ecofast then 1.08 else 1.00 
                                                               else 10000
     )
 
@@ -362,3 +355,4 @@ assign initialcost
 # V1.0.14   * Implemented very long distance restrictions, ! small fixes
 # V1.0.15 ALFA + Return to independent avoid_motorways - 13/5/16
 #              + different pass1coefficients depending on allowsed motorways/toll roads - 13/5/16
+# V1.0.16 BETA * change of default to not avoiding unpaved,                               7-aug-16
