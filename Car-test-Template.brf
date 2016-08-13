@@ -1,9 +1,13 @@
 
-# Car-Routing is experimrntal and expect local failures, as turn restrictions
-# are missing by current Brouter design, leading to possible wrong routes
-# Template was originally based on standard Car-test, added speed and eco preferences to roads.
+# Car-Routing is experimrntal and expects local failures, as turn restrictions are missing
+# It is determined by the current Brouter design, leading to possible wrong routes
+# The profile template was originally based on standard Car-test, added speed and eco preferences to roads.
 # Progressively more enhancements were added.
-# See the bottom for version history
+# See also https://github.com/poutnikl/Brouter-profiles/wiki
+# and https://github.com/poutnikl/Car-Profile
+# <LEGEND>
+# Legend above is placeholder for generated comments of final profile
+# See the profile bottom for changelogs and verbose *) comments
 # V1.0.17 !fixed bug marking highways=unclassified as forbidden for Car Fast profiles
 #         * costfactor tweaks for minor ways.   8-Aug-2016
 
