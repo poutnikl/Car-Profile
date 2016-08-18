@@ -236,7 +236,7 @@ assign costfactor
 
     else (  
     
-    if equal supposed_speed 30  then 30 else
+    if badtrack                 then 30 else
     if equal supposed_speed 10  then if eco then 2.49 else if ecofast then 5.81 else 13.0 else
     if equal supposed_speed 20  then if eco then 1.57 else if ecofast then 3.07 else 6.50 else
     if equal supposed_speed 30  then if eco then 1.18 else if ecofast then 2.12 else 4.33 else
