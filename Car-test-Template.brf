@@ -1,24 +1,32 @@
-
 # Car-Routing is experimrntal and expects local failures, as turn restrictions are missing
 # It is determined by the current Brouter design, leading to possible wrong routes
-# The profile template was originally based on standard Car-test, added speed and eco preferences to roads.
+# The profile template was originally based on standard Car-test, added speed and eco preferences to roads. 
 # Progressively more enhancements were added.
-# See also https://github.com/poutnikl/Brouter-profiles/wiki
-# and https://github.com/poutnikl/Car-Profile
 #
-# LEGEND
+# V1.0.17 !revised initial and turning costs of roads ( modelling acceleration and delay effects in turns and initial speeding ups)
+          + added boolen switched for beta Locus config screens
+#
+# LEGEND 
 #
 # Legend above is placeholder for generated comments of final profile
 # See the profile bottom for changelogs and verbose *) comments
-# V1.0.17 !fixed bug marking highways=unclassified as forbidden for Car Fast profiles
-#         * costfactor tweaks for minor ways.   8-Aug-2016
+#
+# See also https://github.com/poutnikl/Brouter-profiles/wiki
+# and https://github.com/poutnikl/Car-Profile
 
 ---context:global
 
 # must have integer values 0=short,1=eco,2=ecofast(preferred to eco),3=fast(default)
-assign drivestyle             3 # default 3
+assign drivestyle             2 # default is 2; 0=shortest 1=Least estimated fuel consumption 
+                                # 2=Balanced fuel consumption and travel time ( default ) 3=fast
+
+assign fastprofile            0 # default 0=economic, i.e. balanced cost and time, 1=prefers shorter time
+                                # implemented for Locus config switch system 
+                                # fastprofile=0 is equivalent drivestyle=2(FastEco), fastprofile=1 is equivalent drivestyle=3(Fast)
 assign avoid_motorways        0 # default 0, 1=like if on moped or on "sightseeing tour", includes motorroad=yes
 assign avoid_toll             0 # default 0 / 1=avoid paid ways and toll points like booths or bridges
+assign avoid_unpaved          0 # default 0 / 1=avoid unpaved roads, equivalent to road_restriction=1, implemented for Locus confing switches
+
 assign road_restriction       1 # default 1 ( 4 and above is 1pass only for fast suboptimal calculation )
 assign turnInstructionMode  = 1 # 0=none, 1=auto-choose, 2=locus-style, 3=osmand-style / 1 does not work for Brouter-web
 
@@ -44,7 +52,8 @@ assign pass2coefficient   if      ( greater 4 road_restriction ) then 0  else -1
 assign short      equal drivestyle 0 # 0=short  - Shortest way possible ( for completeness, not really useful )
 assign eco        equal drivestyle 1 # 1=eco    - Least estimated fuel consumption
 assign ecofast    equal drivestyle 2 # 2=fasteco- Balanced fuel consuption and travel time ( default )
-assign fast       equal drivestyle 3 # 3=fast   - Least travel time, based on lower of explicit maxspeed or defined nominal speed.
+assign fast       or equal drivestyle 3 equal fastprofile 0
+                                     # 3=fast   - Least travel time, based on lower of explicit maxspeed or defined nominal speed.
 
 
 assign uphillcost       30        # ( horizontally, 6 L/100 km, 37 MJ/L, 25% engine efficiency gives about 500 J/m.
@@ -98,36 +107,65 @@ assign  urbanc        highway=residential|service|living_street
 assign  goodtrack     and highway=track|road or tracktype=grade1 ispaved
 assign  badtrack      or highway=footway|path  and highway=track|road not goodtrack
 
+assign supposed_speed 
+    if or maxspeed=10 highway=pedestrian                      then 10 else
+    if or maxspeed=20 or highway=bridleway  badtrack          then 20 else
+    if or maxspeed=30 or highway=living_street  goodtrack     then 30 else
+    if maxspeed=40                                            then 40 else
+    if or maxspeed=50|urban or urbanc  highway=unclassified   then 50 else
+    if or maxspeed=60 thirdc                                  then 60 else
+    if or maxspeed=70 secondc                                 then 70 else
+    if maxspeed=80                                            then 80 else
+    if or maxspeed=90|rural    firstc                         then 90 else
+    if maxspeed=100                                           then 100 else
+    if or maxspeed=110 or trunkc eco                          then 110 else
+    if or maxspeed=120 ecofast                                then 120 else
+    if or maxspeed=130 motorwayc                              then 130
+                                                              else 30
+   
+
 assign turncost if junction=roundabout then 0 else
-    multiply turn_penalty_multiplier ( if or ismainroad urbanc then 200 else 80 )
+    multiply turn_penalty_multiplier 
+    (
+        if greater supposed_speed 90 then 0 else  # motorways/trunks without sharp curves
+        if equal   supposed_speed 90 then 320 else
+        if equal   supposed_speed 80 then 240 else
+        if equal   supposed_speed 70 then 180 else
+        if equal   supposed_speed 60 then 125 else
+        if equal   supposed_speed 50 then 80 else
+        if equal   supposed_speed 40 then 50 else
+        if equal   supposed_speed 30 then 27 else
+        if equal   supposed_speed 20 then 11 else
+        if equal   supposed_speed 10 then 3
+        else 0
+    )
     
 assign initialclassifier
 if route=ferry then 1
 else if highway=motorway              then 2
-else if highway=trunk                 then 3
-else if highway=primary               then 4
-else if highway=secondary             then 5
-else if highway=tertiary              then 6
+else if         trunkc                then 3
+else if         firstc                then 4
+else if         secondc               then 5
+else if         thirdc                then 6
 else if highway=unclassified          then 7
 else if highway=residential           then 8
 else if highway=living_street         then 9
 else if highway=service               then 10
-else if highway=motorway_link         then 12
-else if highway=trunk_link            then 13
-else if highway=primary_link          then 14
-else if highway=secondary_link        then 15
-else if highway=tertiary_link         then 16
-                                      else 11
+else if highway=motorway_link         then 11
+                                      else 12
 
 assign initialcost switch route=ferry 20000 
-multiply     initial_penalty_multiplier     (
-if       motorwayc                          then 300
-else if  trunkc                             then 250
-else if  firstc                             then 300
-else if  secondc                            then 220
-else if  thirdc                             then 150
-else if  or urbanc highway=unclassified     then 100
-                                            else 70   )
+multiply     initial_penalty_multiplier     ( # for speeding up
+
+        if equal   supposed_speed 130 then 350 else
+        if equal   supposed_speed 120 then 250 else
+        if equal   supposed_speed 110 then 180 else
+        if equal   supposed_speed 100 then 120 else
+        if equal   supposed_speed 90 then 90 else
+        if equal   supposed_speed 80 then 70 else
+        if equal   supposed_speed 70 then 36
+        else 0   
+        )
 
 #
 # calculate logical car access
@@ -161,7 +199,8 @@ assign accesspenalty
                 else if ( and ( equal road_restriction 4 ) not ismainroad               ) then 10000
                 else if ( and ( equal road_restriction 5 ) not ismainroadsec            ) then 10000
                 else if ( and ( equal road_restriction 6 ) not ismainroadprm            ) then 10000
-                else if ( and ( equal road_restriction 2 )     badtrack                 ) then 10000
+                else if ( and ( or ( equal road_restriction 2 ) ( equal avoid_unpaved 1 ) ) 
+                               badtrack    )                                              then 10000
                                                                                           else 0 
                )
               10000
@@ -178,6 +217,9 @@ assign onewaypenalty
 
 assign islinktype = highway=motorway_link|trunk_link|primary_link|secondary_link|tertiary_link
 
+ 
+
+
 assign costfactor
 
     add max onewaypenalty accesspenalty
@@ -186,28 +228,29 @@ assign costfactor
 #avoiding strange detours sometimes observed in OSMAnd native navigation
 #related to implict/explicit speed limits, so links may appear faster.
 
-    add switch     highway=motorway_link|trunk_link|primary_link|secondary_link|tertiary_link 0.4 0    
+    add switch  islinktype 0.4 0    
 
     if route=ferry    then 5.67 else 
                 
     if short then 1.0 # if someone insists on shortest route, what does not make much sense for cars
 
     else (  
-    if badtrack                                               then 30 else
-    if or maxspeed=10 highway=pedestrian                      then if eco then 2.49 else if ecofast then 5.81 else 13.0 else
-    if or maxspeed=20 highway=bridleway                       then if eco then 1.57 else if ecofast then 3.07 else 6.50 else
-    if or maxspeed=30 or highway=living_street  goodtrack     then if eco then 1.18 else if ecofast then 2.12 else 4.33 else
-    if maxspeed=40                                            then if eco then 1.07 else if ecofast then 1.69 else 3.25 else
-    if or maxspeed=50|urban or urbanc  highway=unclassified   then if eco then 1.03 else if ecofast then 1.44 else 2.60 else
-    if or maxspeed=60 thirdc                                  then if eco then 1.02 else if ecofast then 1.28 else 2.17 else
-    if or maxspeed=70 secondc                                 then if eco then 1.00 else if ecofast then 1.16 else 1.86 else
-    if maxspeed=80                                            then if eco then 1.00 else if ecofast then 1.08 else 1.63 else
-    if or maxspeed=90|rural    firstc                         then if eco then 1.01 else if ecofast then 1.02 else 1.44 else
-    if maxspeed=100                                           then if eco then 1.05 else if ecofast then 1.00 else 1.30 else
-    if or maxspeed=110 or trunkc eco                          then if eco then 1.17 else if ecofast then 1.02 else 1.18 else
-    if or maxspeed=120 ecofast                                then if eco then 1.29 else if ecofast then 1.05 else 1.08 else
-    if or maxspeed=130 motorwayc                              then if eco then 1.40 else if ecofast then 1.08 else 1.00 
-                                                              else 10000
+    
+    if equal supposed_speed 30  then 30 else
+    if equal supposed_speed 10  then if eco then 2.49 else if ecofast then 5.81 else 13.0 else
+    if equal supposed_speed 20  then if eco then 1.57 else if ecofast then 3.07 else 6.50 else
+    if equal supposed_speed 30  then if eco then 1.18 else if ecofast then 2.12 else 4.33 else
+    if equal supposed_speed 40  then if eco then 1.07 else if ecofast then 1.69 else 3.25 else
+    if equal supposed_speed 50  then if eco then 1.03 else if ecofast then 1.44 else 2.60 else
+    if equal supposed_speed 60  then if eco then 1.02 else if ecofast then 1.28 else 2.17 else
+    if equal supposed_speed 70  then if eco then 1.00 else if ecofast then 1.16 else 1.86 else
+    if equal supposed_speed 80  then if eco then 1.00 else if ecofast then 1.08 else 1.63 else
+    if equal supposed_speed 90  then if eco then 1.01 else if ecofast then 1.02 else 1.44 else
+    if equal supposed_speed 100 then if eco then 1.05 else if ecofast then 1.00 else 1.30 else
+    if equal supposed_speed 110 then if eco then 1.17 else if ecofast then 1.02 else 1.18 else
+    if equal supposed_speed 120 then if eco then 1.29 else if ecofast then 1.05 else 1.08 else
+    if equal supposed_speed 130 then if eco then 1.40 else if ecofast then 1.08 else 1.00 else
+    10000
     )
 
 # odd priorities indicate link-types
@@ -276,8 +319,8 @@ assign caraccess
 assign initialcost
        switch caraccess
                 multiply     node_penalty_multiplier
-                            if      highway=traffic_signals    then 300
-                            else if highway=stop               then 220
+                            if      highway=traffic_signals    then 150
+                            else if highway=stop               then 100
                             else if highway=crossing           then 50
                             else if highway=bus_stop           then 50 
                                                                else 0
@@ -362,3 +405,5 @@ assign initialcost
 # V1.0.15 ALFA + Return to independent avoid_motorways - 13/5/16
 #              + different pass1coefficients depending on allowsed motorways/toll roads - 13/5/16
 # V1.0.16 BETA * change of default to not avoiding unpaved,                               7-aug-16
+# V1.0.17 !fixed bug marking highways=unclassified as forbidden for Car Fast profiles
+#         * costfactor tweaks for minor ways.   8-Aug-2016
