@@ -25,7 +25,7 @@ assign fastprofile            0 # default 0=economic, i.e. balanced cost and tim
                                 # fastprofile=0 is equivalent drivestyle=2(FastEco), fastprofile=1 is equivalent drivestyle=3(Fast)
 assign avoid_motorways        0 # default 0, 1=like if on moped or on "sightseeing tour", includes motorroad=yes
 assign avoid_toll             0 # default 0 / 1=avoid paid ways and toll points like booths or bridges
-assign avoid_unpaved          0 # default 0 / 1=avoid unpaved roads, equivalent to road_restriction=1, implemented for Locus confing switches
+assign avoid_unpaved          0 # default 0 / 1=avoid unpaved roads, equivalent to road_restriction=2, implemented for Locus confing switches
 
 assign road_restriction       1 # default 1 ( 4 and above is 1pass only for fast suboptimal calculation )
 assign turnInstructionMode  = 1 # 0=none, 1=auto-choose, 2=locus-style, 3=osmand-style / 1 does not work for Brouter-web
@@ -52,7 +52,7 @@ assign pass2coefficient   if      ( greater 4 road_restriction ) then 0  else -1
 assign short      equal drivestyle 0 # 0=short  - Shortest way possible ( for completeness, not really useful )
 assign eco        equal drivestyle 1 # 1=eco    - Least estimated fuel consumption
 assign ecofast    equal drivestyle 2 # 2=fasteco- Balanced fuel consuption and travel time ( default )
-assign fast       or equal drivestyle 3 equal fastprofile 0
+assign fast       or equal drivestyle 3 equal fastprofile 1
                                      # 3=fast   - Least travel time, based on lower of explicit maxspeed or defined nominal speed.
 
 
