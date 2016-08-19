@@ -3,8 +3,8 @@
 # The profile template was originally based on standard Car-test, added speed and eco preferences to roads. 
 # Progressively more enhancements were added.
 #
-# V1.0.17 !revised initial and turning costs of roads ( modelling acceleration and delay effects in turns and initial speeding ups)
-          + added boolen switched for beta Locus config screens
+# V1.0.18 !revised initial and turning costs of roads ( modelling acceleration and delay effects in turns and initial speeding ups)
+          + added boolen switched for beta Locus config screens - 18-aug-2016
 #
 # LEGEND 
 #
