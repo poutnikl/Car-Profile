@@ -3,7 +3,7 @@
 # The profile template was originally based on standard Car-test, added speed and eco preferences to roads. 
 # Progressively more enhancements were added.
 #
-# V1.0.18 Modified flag parameter comment syntax for Locus, based on Arndt comment. 20-aug-2016
+# V1.0.19 !Fixed a bug in drivestyle logic 20-aug-2016
 #
 # LEGEND 
 #
@@ -53,11 +53,12 @@ assign pass1coefficient
                           
 assign pass2coefficient   if      ( greater 4 road_restriction ) then 0  else -1
 
-assign short      equal drivestyle 0 # 0=short  - Shortest way possible ( for completeness, not really useful )
-assign eco        equal drivestyle 1 # 1=eco    - Least estimated fuel consumption
-assign ecofast    equal drivestyle 2 # 2=fasteco- Balanced fuel consuption and travel time ( default )
+assign short      equal drivestyle     0   # 0=short  - Shortest way possible ( for completeness, not really useful )
+assign eco        equal drivestyle     1   # 1=eco    - Least estimated fuel consumption
+assign ecofast    and equal drivestyle 2 
+                      equal fastprofile 0  # 2=fasteco- Balanced fuel consuption and travel time ( default )
 assign fast       or equal drivestyle 3 equal fastprofile 1
-                                     # 3=fast   - Least travel time, based on lower of explicit maxspeed or defined nominal speed.
+                                           # 3=fast   - Least travel time, based on lower of explicit maxspeed or defined nominal speed.
 
 
 assign uphillcost       30        # ( horizontally, 6 L/100 km, 37 MJ/L, 25% engine efficiency gives about 500 J/m.
@@ -413,3 +414,4 @@ assign initialcost
 #         * costfactor tweaks for minor ways.   8-Aug-2016
 # V1.0.18 !revised initial and turning costs of roads ( modelling acceleration and delay effects in turns and initial speeding ups)
 #         + added boolen switched for beta Locus config screens - 18-aug-2016
+# V1.0.18 Modified flag parameter comment syntax for Locus, based on Arndt comment. 20-aug-2016
