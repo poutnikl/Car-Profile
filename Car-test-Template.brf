@@ -3,7 +3,7 @@
 # The profile template was originally based on standard Car-test, added speed and eco preferences to roads. 
 # Progressively more enhancements were added.
 #
-# V1.0.19 !Fixed a bug in drivestyle logic 20-aug-2016
+# V1.0.20 
 #
 # LEGEND 
 #
@@ -45,13 +45,9 @@ assign turnInstructionMode  = 1 # 0=none, 1=auto-choose, 2=locus-style, 3=osmand
 
 #internal settings ------------------------------------------------------------------------------------
 
-assign pass1coefficient   
-   if   (  greater 4 road_restriction  ) then ( if or avoid_motorways avoid_toll then 2.2 else 1.8 ) 
-   else if ( equal  road_restriction 4 ) then ( if or avoid_motorways avoid_toll then 1.6 else 1.4 ) #1-pass, mainroads
-   else if ( equal  road_restriction 5 ) then ( if or avoid_motorways avoid_toll then 1.7 else 1.5 ) #1-pass, mainroads secondary
-   else                                       ( if or avoid_motorways avoid_toll then 1.8 else 1.6 ) #1-pass, mainroads primary 
-                          
-assign pass2coefficient   if      ( greater 4 road_restriction ) then 0  else -1
+assign pass1coefficient  if ( greater 5 road_restriction  ) then 1.5 else if ( equal 5 road_restriction  ) then 1.6 else 1.7
+                         
+assign pass2coefficient  if ( greater road_restriction 3 ) then -1 else 0 
 
 assign short      equal drivestyle     0   # 0=short  - Shortest way possible ( for completeness, not really useful )
 assign eco        equal drivestyle     1   # 1=eco    - Least estimated fuel consumption
@@ -94,6 +90,11 @@ assign initial_penalty_multiplier
     switch ecofast  penalty_coef_ecofast
     switch eco      penalty_coef_eco
                     1.0
+                    
+assign road_restriction_ban true
+
+assign road_restriction_coef if road_restriction_ban  then 10000 else 100
+                    
     
 
 ---context:way   # following code refers to way-tags
@@ -200,12 +201,12 @@ assign accesspenalty
        switch caraccess
               ( if      ( and avoid_motorways ( or  motorwayc motorroad=yes ) )           then 10000
                 else if ( and avoid_toll toll=yes )                                       then 10000
-				else if ( and ( equal road_restriction 3 ) not ( or ismainroad urbanc ) ) then 10000
-                else if ( and ( equal road_restriction 4 ) not ismainroad               ) then 10000
-                else if ( and ( equal road_restriction 5 ) not ismainroadsec            ) then 10000
-                else if ( and ( equal road_restriction 6 ) not ismainroadprm            ) then 10000
                 else if ( and ( or ( equal road_restriction 2 ) ( equal avoid_unpaved 1 ) ) 
                                badtrack    )                                              then 10000
+				else if ( and ( equal road_restriction 3 ) not ( or ismainroad urbanc ) ) then road_restriction_coef
+                else if ( and ( equal road_restriction 4 ) not ismainroad               ) then road_restriction_coef
+                else if ( and ( equal road_restriction 5 ) not ismainroadsec            ) then road_restriction_coef
+                else if ( and ( equal road_restriction 6 ) not ismainroadprm            ) then road_restriction_coef
                                                                                           else 0 
                )
               10000
@@ -415,3 +416,4 @@ assign initialcost
 # V1.0.18 !revised initial and turning costs of roads ( modelling acceleration and delay effects in turns and initial speeding ups)
 #         + added boolen switched for beta Locus config screens - 18-aug-2016
 # V1.0.18 Modified flag parameter comment syntax for Locus, based on Arndt comment. 20-aug-2016
+# V1.0.19 !Fixed a bug in drivestyle logic 20-aug-2016
