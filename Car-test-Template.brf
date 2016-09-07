@@ -3,7 +3,7 @@
 # The profile template was originally based on standard Car-test, added speed and eco preferences to roads. 
 # Progressively more enhancements were added.
 #
-# V1.0.20 
+# V1.0.21  fixing unpaved conditions for main roads
 #
 # LEGEND 
 #
@@ -417,3 +417,4 @@ assign initialcost
 #         + added boolen switched for beta Locus config screens - 18-aug-2016
 # V1.0.18 Modified flag parameter comment syntax for Locus, based on Arndt comment. 20-aug-2016
 # V1.0.19 !Fixed a bug in drivestyle logic 20-aug-2016
+# V1.0.20 Minor changes
