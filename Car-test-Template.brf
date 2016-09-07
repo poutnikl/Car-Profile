@@ -3,7 +3,7 @@
 # The profile template was originally based on standard Car-test, added speed and eco preferences to roads. 
 # Progressively more enhancements were added.
 #
-# V1.0.21  fixing unpaved conditions for main roads
+# V1.0.22  fixing fixed way initialcost
 #
 # LEGEND 
 #
@@ -164,16 +164,13 @@ else if highway=motorway_link         then 11
                                       else 12
 
 assign initialcost switch route=ferry 20000 
-multiply     initial_penalty_multiplier     ( # for speeding up
 
-        if equal   supposed_speed 130 then 350 else
-        if equal   supposed_speed 120 then 250 else
-        if equal   supposed_speed 110 then 180 else
-        if equal   supposed_speed 100 then 120 else
-        if equal   supposed_speed 90 then 90 else
-        if equal   supposed_speed 80 then 70 else
-        if equal   supposed_speed 70 then 36
-        else 0   
+multiply     initial_penalty_multiplier     ( 
+
+        if greater supposed_speed 80 then 0 else
+        if greater supposed_speed 50 then 75 else
+        if greater supposed_speed 20 then 150 
+        else 300
         )
 
 #
@@ -421,3 +418,4 @@ assign initialcost
 # V1.0.18 Modified flag parameter comment syntax for Locus, based on Arndt comment. 20-aug-2016
 # V1.0.19 !Fixed a bug in drivestyle logic 20-aug-2016
 # V1.0.20 Minor changes
+# V1.0.21  fixing unpaved conditions for main roads
