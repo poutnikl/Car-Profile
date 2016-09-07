@@ -3,7 +3,7 @@
 # The profile template was originally based on standard Car-test, added speed and eco preferences to roads. 
 # Progressively more enhancements were added.
 #
-# V1.0.20 
+# V1.0.21  fixing unpaved conditions for main roads
 #
 # LEGEND 
 #
@@ -100,6 +100,7 @@ assign road_restriction_coef if road_restriction_ban  then 10000 else 100
 ---context:way   # following code refers to way-tags
 
 assign ispaved        surface=paved|asphalt|concrete|paving_stones|sett
+assign isunpaved      not or ispaved or surface= surface=cobblestone
 
 assign  thirdc        highway=tertiary|tertiary_link
 assign  secondc       highway=secondary|secondary_link
@@ -110,16 +111,18 @@ assign  ismainroadprm or firstc or trunkc motorwayc
 assign  ismainroadsec or secondc ismainroadprm
 assign  ismainroad    or highway=unclassified or thirdc ismainroadsec
 assign  urbanc        highway=residential|service|living_street
-assign  goodtrack     and highway=track|road or tracktype=grade1 ispaved
-assign  badtrack      or highway=footway|path  and highway=track|road not goodtrack
+
+assign  goodroad      or ispaved and ismainroad not isunpaved
+assign  badroad       and not goodroad or isunpaved highway=footway|path
+assign  greyroad      and not goodroad not badroad
 
 assign supposed_speed 
-    if or maxspeed=10 highway=pedestrian                      then 10 else
-    if or maxspeed=20 or highway=bridleway  badtrack          then 20 else
-    if or maxspeed=30 or highway=living_street  goodtrack     then 30 else
-    if maxspeed=40                                            then 40 else
-    if or maxspeed=50|urban or urbanc  highway=unclassified   then 50 else
-    if or maxspeed=60 thirdc                                  then 60 else
+    if or maxspeed=10 highway=pedestrian|bridleway            then 10 else
+    if or maxspeed=20 or badroad highway=bridleway            then 20 else
+    if or maxspeed=30 or urbanc  greyroad                     then 30 else
+    if or maxspeed=40  highway=unclassified                   then 40 else
+    if or maxspeed=50|urban or thirdc highway=unclassified    then 50 else
+    if    maxspeed=60                                         then 60 else
     if or maxspeed=70 secondc                                 then 70 else
     if maxspeed=80                                            then 80 else
     if or maxspeed=90|rural    firstc                         then 90 else
@@ -202,7 +205,7 @@ assign accesspenalty
               ( if      ( and avoid_motorways ( or  motorwayc motorroad=yes ) )           then 10000
                 else if ( and avoid_toll toll=yes )                                       then 10000
                 else if ( and ( or ( equal road_restriction 2 ) ( equal avoid_unpaved 1 ) ) 
-                               badtrack    )                                              then 10000
+                               badroad     )                                              then road_restriction_coef
 				else if ( and ( equal road_restriction 3 ) not ( or ismainroad urbanc ) ) then road_restriction_coef
                 else if ( and ( equal road_restriction 4 ) not ismainroad               ) then road_restriction_coef
                 else if ( and ( equal road_restriction 5 ) not ismainroadsec            ) then road_restriction_coef
@@ -242,7 +245,7 @@ assign costfactor
 
     else (  
     
-    if badtrack                 then 30 else
+    if badroad                  then 30 else
     if equal supposed_speed 10  then if eco then 2.49 else if ecofast then 5.81 else 13.0 else
     if equal supposed_speed 20  then if eco then 1.57 else if ecofast then 3.07 else 6.50 else
     if equal supposed_speed 30  then if eco then 1.18 else if ecofast then 2.12 else 4.33 else
@@ -417,3 +420,4 @@ assign initialcost
 #         + added boolen switched for beta Locus config screens - 18-aug-2016
 # V1.0.18 Modified flag parameter comment syntax for Locus, based on Arndt comment. 20-aug-2016
 # V1.0.19 !Fixed a bug in drivestyle logic 20-aug-2016
+# V1.0.20 Minor changes
