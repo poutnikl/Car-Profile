@@ -34,6 +34,8 @@ assign avoid_unpaved          0 # %avoid_unpaved% Avoid unpaved| Unpaved ways ar
 assign road_restriction       1 # default 1 ( 4 and above is 1pass only for fast suboptimal calculation )
 assign turnInstructionMode  = 1 # 0=none, 1=auto-choose, 2=locus-style, 3=osmand-style / 1 does not work for Brouter-web
 
+assign consider_smoothness         0 # 1=consider smoothness=* tag
+
 #road_restrictions
 # 
 # 1=No restriction(Default), with exception of avoid_motorways and avoid_toll
@@ -115,6 +117,20 @@ assign  urbanc        highway=residential|service|living_street
 assign  goodroad      or ispaved and ismainroad not isunpaved
 assign  badroad       and not goodroad or isunpaved highway=footway|path
 assign  greyroad      and not goodroad not badroad
+
+# http://wiki.openstreetmap.org/wiki/Key:smoothness
+
+assign smoothness_penalty 
+if not consider_smoothness                 then 1.0 else
+if smoothness=                             then 1.0 else
+if smoothness=excellent|very_good|good     then 1.0 else
+if smoothness=intermediate                 then 2.0 else
+if smoothness=bad|robust_wheels            then 4.0 else
+if smoothness=very_bad|high_clearance      then 10.0 else
+if smoothness=horrible|off_road_wheels     then 10000 else
+if smoothness=very_horrible                then 10000 else
+if smoothness=impassable                   then 10000 else
+10000
 
 assign supposed_speed 
     if or maxspeed=10 or badroad highway=pedestrian|bridleway   then 10 else
@@ -239,8 +255,10 @@ assign costfactor
     if route=ferry    then 5.67 else 
                 
     if short then 1.0 # if someone insists on shortest route, what does not make much sense for cars
-
-    else (  
+    
+    else 
+    multiply smoothness_penalty
+    (  
     
     if badroad                  then 30 else
     if equal supposed_speed 10  then if eco then 2.49 else if ecofast then 5.81 else 13.0 else
