@@ -3,7 +3,7 @@
 # The profile template was originally based on standard Car-test, added speed and eco preferences to roads. 
 # Progressively more enhancements were added.
 #
-# V1.0.22  fixing fixed way initialcost
+# V1.0.23  fixing assumed speeds for tracks + toll initialcost
 #
 # LEGEND 
 #
@@ -117,9 +117,9 @@ assign  badroad       and not goodroad or isunpaved highway=footway|path
 assign  greyroad      and not goodroad not badroad
 
 assign supposed_speed 
-    if or maxspeed=10 highway=pedestrian|bridleway            then 10 else
-    if or maxspeed=20 or badroad highway=bridleway            then 20 else
-    if or maxspeed=30 or urbanc  greyroad                     then 30 else
+    if or maxspeed=10 or badroad highway=pedestrian|bridleway   then 10 else
+    if or maxspeed=20 or greyroad highway=bridleway             then 20 else
+    if or maxspeed=30 or urbanc highway=track|road            then 30 else
     if or maxspeed=40  highway=unclassified                   then 40 else
     if or maxspeed=50|urban or thirdc highway=unclassified    then 50 else
     if    maxspeed=60                                         then 60 else
@@ -328,7 +328,9 @@ assign initialcost
                             if      highway=traffic_signals    then 150
                             else if highway=stop               then 100
                             else if highway=crossing           then 50
-                            else if highway=bus_stop           then 50 
+                            else if highway=bus_stop           then 50
+                            else if or barrier=toll_booth highway=toll_bridge
+                                                               then 1000
                                                                else 0
               1000000
               
@@ -419,3 +421,4 @@ assign initialcost
 # V1.0.19 !Fixed a bug in drivestyle logic 20-aug-2016
 # V1.0.20 Minor changes
 # V1.0.21  fixing unpaved conditions for main roads
+# V1.0.22  fixing fixed way initialcost
