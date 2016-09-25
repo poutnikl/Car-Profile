@@ -3,7 +3,8 @@
 # The profile template was originally based on standard Car-test, added speed and eco preferences to roads. 
 # Progressively more enhancements were added.
 #
-# V1.0.22  fixing fixed way initialcost
+# V1.0.23  fixing assumed speeds for tracks + toll initialcost
+#           added smoothness
 #
 # LEGEND 
 #
@@ -33,6 +34,8 @@ assign avoid_unpaved          0 # %avoid_unpaved% Avoid unpaved| Unpaved ways ar
 
 assign road_restriction       1 # default 1 ( 4 and above is 1pass only for fast suboptimal calculation )
 assign turnInstructionMode  = 1 # 0=none, 1=auto-choose, 2=locus-style, 3=osmand-style / 1 does not work for Brouter-web
+
+assign consider_smoothness         0 # 1=consider smoothness=* tag
 
 #road_restrictions
 # 
@@ -116,10 +119,24 @@ assign  goodroad      or ispaved and ismainroad not isunpaved
 assign  badroad       and not goodroad or isunpaved highway=footway|path
 assign  greyroad      and not goodroad not badroad
 
+# http://wiki.openstreetmap.org/wiki/Key:smoothness
+
+assign smoothness_penalty 
+if not consider_smoothness                 then 1.0 else
+if smoothness=                             then 1.0 else
+if smoothness=excellent|very_good|good     then 1.0 else
+if smoothness=intermediate                 then 2.0 else
+if smoothness=bad|robust_wheels            then 4.0 else
+if smoothness=very_bad|high_clearance      then 10.0 else
+if smoothness=horrible|off_road_wheels     then 10000 else
+if smoothness=very_horrible                then 10000 else
+if smoothness=impassable                   then 10000 else
+10000
+
 assign supposed_speed 
-    if or maxspeed=10 highway=pedestrian|bridleway            then 10 else
-    if or maxspeed=20 or badroad highway=bridleway            then 20 else
-    if or maxspeed=30 or urbanc  greyroad                     then 30 else
+    if or maxspeed=10 or badroad highway=pedestrian|bridleway   then 10 else
+    if or maxspeed=20 or greyroad highway=bridleway             then 20 else
+    if or maxspeed=30 or urbanc highway=track|road            then 30 else
     if or maxspeed=40  highway=unclassified                   then 40 else
     if or maxspeed=50|urban or thirdc highway=unclassified    then 50 else
     if    maxspeed=60                                         then 60 else
@@ -239,8 +256,10 @@ assign costfactor
     if route=ferry    then 5.67 else 
                 
     if short then 1.0 # if someone insists on shortest route, what does not make much sense for cars
-
-    else (  
+    
+    else 
+    multiply smoothness_penalty
+    (  
     
     if badroad                  then 30 else
     if equal supposed_speed 10  then if eco then 2.49 else if ecofast then 5.81 else 13.0 else
@@ -328,7 +347,9 @@ assign initialcost
                             if      highway=traffic_signals    then 150
                             else if highway=stop               then 100
                             else if highway=crossing           then 50
-                            else if highway=bus_stop           then 50 
+                            else if highway=bus_stop           then 50
+                            else if or barrier=toll_booth highway=toll_bridge
+                                                               then 1000
                                                                else 0
               1000000
               
@@ -419,3 +440,4 @@ assign initialcost
 # V1.0.19 !Fixed a bug in drivestyle logic 20-aug-2016
 # V1.0.20 Minor changes
 # V1.0.21  fixing unpaved conditions for main roads
+# V1.0.22  fixing fixed way initialcost
