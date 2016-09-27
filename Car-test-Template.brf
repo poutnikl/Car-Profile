@@ -3,8 +3,8 @@
 # The profile template was originally based on standard Car-test, added speed and eco preferences to roads. 
 # Progressively more enhancements were added.
 #
-# V1.0.23  fixing assumed speeds for tracks + toll initialcost
-#           added smoothness
+# V1.0.24  Tweaked initial costs and traffic lights penalty
+#
 #
 # LEGEND 
 #
@@ -184,10 +184,17 @@ assign initialcost switch route=ferry 20000
 
 multiply     initial_penalty_multiplier     ( 
 
-        if greater supposed_speed 80 then 0 else
-        if greater supposed_speed 50 then 75 else
-        if greater supposed_speed 20 then 150 
-        else 300
+if      highway=motorway              then 0
+else if         trunkc                then 0
+else if         firstc                then 50
+else if         secondc               then 75
+else if         thirdc                then 100
+else if highway=unclassified          then 125
+else if highway=residential           then 150
+else if highway=living_street         then 150
+else if highway=service               then 150
+else if highway=motorway_link         then 100
+                                      else 200
         )
 
 #
@@ -344,10 +351,10 @@ assign caraccess
 assign initialcost
        switch caraccess
                 multiply     node_penalty_multiplier
-                            if      highway=traffic_signals    then 150
+                            if      highway=traffic_signals    then 100
                             else if highway=stop               then 100
                             else if highway=crossing           then 50
-                            else if highway=bus_stop           then 50
+                            else if highway=bus_stop           then 25
                             else if or barrier=toll_booth highway=toll_bridge
                                                                then 1000
                                                                else 0
@@ -441,3 +448,5 @@ assign initialcost
 # V1.0.20 Minor changes
 # V1.0.21  fixing unpaved conditions for main roads
 # V1.0.22  fixing fixed way initialcost
+# V1.0.23  fixing assumed speeds for tracks + toll initialcost
+#           added smoothness
